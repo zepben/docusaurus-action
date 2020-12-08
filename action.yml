@@ -31,8 +31,8 @@ runs:
         echo "@zepben:registry=${NPM_REPO}" >> .npmrc
         echo "//npm.pkg.github.com/:_authToken=${NPM_TOKEN}" >> .npmrc
         npm ci
-        npm run docusaurus docs:version $version
-        sed -i "5i \|\[${version}\]\(\#v${version//\./}\)\| \`$(date +'%d %B %Y')\` \|" $RELEASE_NOTES
+        npm run docusaurus docs:version $VERSION
+        sed -i "5i \|\[${VERSION}\]\(\#v${VERSION//\./}\)\| \`$(date +'%d %B %Y')\` \|" $RELEASE_NOTES
         export ln=$(cat $RELEASE_NOTES | grep -n "### v[0-9]\+.[0-9]\+.[0-9]\+" | head -1 | cut -d':' -f1)
         sed -i "${ln}i ${changelog}\n\n---\n" $RELEASE_NOTES
         npm run build
