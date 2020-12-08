@@ -1,0 +1,51 @@
+name: 'Docusaurus Release Action'
+description: 'Build docusaurus project as part of the build process.'
+inputs:
+  VERSION:
+    description: "The project version."
+    required: true
+  CHANGELOG_FILE:
+    description: "File containing the current changelog."
+    default: changelog.md
+    required: true
+  RELEASE_NOTES:
+    description: "Path to the release notes file."
+    default: ./src/pages/release-notes.md
+    required: true
+  NPM_REPO:
+    description: "The package repo for npm to use."
+    required: true
+  NPM_TOKEN:
+    description: "Token for authenticating with NPM_REPO."
+    required: true
+runs:
+  using: "composite"
+  steps: 
+    - run: |
+        git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+        git fetch --all
+        git checkout release
+        changelog=$(cat $CHANGELOG_FILE | sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g')
+        cd docs
+        rm -f .npmrc
+        echo "@zepben:registry=${NPM_REPO}" >> .npmrc
+        echo "//npm.pkg.github.com/:_authToken=${NPM_TOKEN}" >> .npmrc
+        npm ci
+        npm run docusaurus docs:version $version
+        sed -i "5i \|\[${version}\]\(\#v${version//\./}\)\| \`$(date +'%d %B %Y')\` \|" $RELEASE_NOTES
+        export ln=$(cat $RELEASE_NOTES | grep -n "### v[0-9]\+.[0-9]\+.[0-9]\+" | head -1 | cut -d':' -f1)
+        sed -i "${ln}i ${changelog}\n\n---\n" $RELEASE_NOTES
+        npm run build
+        git restore .npmrc
+        git add .
+        git config user.email "ci.github@zepben.com"
+        git config user.name "Github CI"
+        git commit -m "Committing doc changes to docusaurus. [skip ci]"
+        git push origin release
+      shell: bash
+      env:
+        VERSION: ${{ inputs.VERSION }}
+        CHANGELOG_FILE: ${{ inputs.CHANGELOG_FILE  }}
+        RELEASE_NOTES: ${{ inputs.RELEASE_NOTES }}
+        NPM_REPO: ${{ inputs.NPM_REPO }}
+        NPM_TOKEN: ${{ inputs.NPM_TOKEN }}
