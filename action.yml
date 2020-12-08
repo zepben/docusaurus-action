@@ -42,7 +42,7 @@ runs:
         git config user.name "Github CI"
         git commit -m "Committing doc changes to docusaurus. [skip ci]"
         git push origin release
-      shell: bash
+      shell: sh
       env:
         VERSION: ${{ inputs.VERSION }}
         CHANGELOG_FILE: ${{ inputs.CHANGELOG_FILE  }}
