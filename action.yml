@@ -34,7 +34,11 @@ runs:
         npm run docusaurus finalize-doc $VERSION
         sed -i "5i \|\[${VERSION}\]\(\#v${VERSION//\./}\)\| \`$(date +'%d %B %Y')\` \|" $RELEASE_NOTES
         export ln=$(cat $RELEASE_NOTES | grep -n "### v[0-9]\+.[0-9]\+.[0-9]\+" | head -1 | cut -d':' -f1)
-        sed -i "${ln}i ${changelog}\n\n---\n" $RELEASE_NOTES
+        if [ -z "$ln" ]; then
+          echo "${changelog}\n\n---\n" >> $RELEASE_NOTES
+        else
+          sed -i "${ln}i ${changelog}\n\n---\n" $RELEASE_NOTES
+        fi
         npm run build
         git restore .npmrc
         git add .
