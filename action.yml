@@ -25,7 +25,9 @@ runs:
         git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
         git fetch --all
         git checkout release
+        header="## [$VERSION]"
         changelog=$(sed -n -E "/$VERSION/,/## [[0-9]+\.[0-9]+\.[0-9]+]/ { /## \[/d;p }" $CHANGELOG_FILE)
+        to_append="$header\n\n$changelog\n\n---\n"
         cd docs
         rm -f .npmrc
         echo "@zepben:registry=${NPM_REPO}" >> .npmrc
@@ -38,7 +40,7 @@ runs:
         if [ -z "$ln" ]; then
           echo "${changelog}\n\n---\n" >> $RELEASE_NOTES
         else
-          sed -i "${ln}i ${changelog}\n\n---\n" $RELEASE_NOTES
+          awk -v n=$ln -v s="$to_append" 'NR == n {print s} {print}' $RELEASE_NOTES > $RELEASE_NOTES
         fi
         npm run build
         git restore .npmrc
