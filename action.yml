@@ -40,7 +40,8 @@ runs:
         if [ -z "$ln" ]; then
           echo "${changelog}\n\n---\n" >> $RELEASE_NOTES
         else
-          awk -v n=$ln -v s="$to_append" 'NR == n {print s} {print}' $RELEASE_NOTES > $RELEASE_NOTES
+          awk -v n=$ln -v s="$to_append" 'NR == n {print s} {print}' $RELEASE_NOTES > release-notes.tmp
+          mv release-notes.tmp $RELEASE_NOTES
         fi
         npm run build
         git restore .npmrc
