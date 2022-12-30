@@ -25,13 +25,13 @@ runs:
         git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
         git fetch --all
         git checkout release
-        changelog=$(cat $CHANGELOG_FILE | sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g')
+        changelog=$(sed -n -E "/UNRELEASED/,/## [[0-9]+\.[0-9]+\.[0-9]+]/ { /## \[/d;p }" $CHANGELOG_FILE)
         cd docs
         rm -f .npmrc
         echo "@zepben:registry=${NPM_REPO}" >> .npmrc
         echo "//npm.pkg.github.com/:_authToken=${NPM_TOKEN}" >> .npmrc
         npm ci
-        npm run docusaurus finalize-doc $VERSION
+        npm run docusaurus docs:version $VERSION
         sed -i "5i \|\[${VERSION}\]\(\#v${VERSION//\./}\)\| \`$(date +'%d %B %Y')\` \|" $RELEASE_NOTES
         export ln=$(cat $RELEASE_NOTES | grep -E -n "#+ \[[0-9]+.[0-9]+.[0-9]+" | head -1 | cut -d':' -f1)
         if [ -z "$ln" ]; then
