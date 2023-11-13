@@ -23,14 +23,14 @@ runs:
   steps: 
 
     - name: Checkout the release branch
-      shell: bash
+      shell: sh
       run: |
         git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
         git fetch --all
         git checkout release
 
     - name: Update npmrc
-      shell: bash
+      shell: sh
       run: |
         pushd docs
         rm -f .npmrc
@@ -41,7 +41,7 @@ runs:
         popd
     
     - name: Build the documentation site
-      shell: bash
+      shell: sh
       run: |
         pushd docs
         npm ci
@@ -51,7 +51,7 @@ runs:
         VERSION: ${{ inputs.VERSION }}
 
     - name: Commit the release branch
-      shell: bash
+      shell: sh
       run: |
         header="## [$VERSION]"
         changelog=$(sed -n -E "/$VERSION/,/## [[0-9]+\.[0-9]+\.[0-9]+]/ { /## \[/d;p }" $CHANGELOG_FILE)
