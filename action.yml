@@ -21,20 +21,41 @@ inputs:
 runs:
   using: "composite"
   steps: 
-    - run: |
+
+    - name: Checkout the release branch
+      shell: bash
+      run: |
         git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
         git fetch --all
         git checkout release
-        header="## [$VERSION]"
-        changelog=$(sed -n -E "/$VERSION/,/## [[0-9]+\.[0-9]+\.[0-9]+]/ { /## \[/d;p }" $CHANGELOG_FILE)
-        to_append="$header\n\n$changelog\n\n---\n"
-        cd docs
+
+    - name: Update npmrc
+      shell: bash
+      run: |
+        pushd docs
         rm -f .npmrc
         echo "@zepben:registry=${NPM_REPO}" >> .npmrc
         echo "//npm.pkg.github.com/:_authToken=${NPM_TOKEN}" >> .npmrc
+        # just in case, add EOL
         echo "\n" >> .npmrc
+        popd
+    
+    - name: Build the documentation site
+      shell: bash
+      run: |
+        pushd docs
         npm ci
         npm run docusaurus docs:version $VERSION
+        npm run build
+      env:
+        VERSION: ${{ inputs.VERSION }}
+
+    - name: Commit the release branch
+      shell: bash
+      run: |
+        header="## [$VERSION]"
+        changelog=$(sed -n -E "/$VERSION/,/## [[0-9]+\.[0-9]+\.[0-9]+]/ { /## \[/d;p }" $CHANGELOG_FILE)
+        to_append="$header\n\n$changelog\n\n---\n"
         sed -i "5i \|\[${VERSION}\]\(\#v${VERSION//\./}\)\| \`$(date +'%d %B %Y')\` \|" $RELEASE_NOTES
         export ln=$(cat $RELEASE_NOTES | grep -E -n "#+ \[[0-9]+.[0-9]+.[0-9]+" | head -1 | cut -d':' -f1)
         if [ -z "$ln" ]; then
@@ -43,14 +64,12 @@ runs:
           awk -v n=$ln -v s="$to_append" 'NR == n {print s} {print}' $RELEASE_NOTES > release-notes.tmp
           mv release-notes.tmp $RELEASE_NOTES
         fi
-        npm run build
         git restore .npmrc
         git add .
         git config user.email "ci.github@zepben.com"
         git config user.name "Github CI"
         git commit -m "Committing doc changes to docusaurus. [skip ci]"
         git push origin release
-      shell: sh
       env:
         VERSION: ${{ inputs.VERSION }}
         CHANGELOG_FILE: ${{ inputs.CHANGELOG_FILE  }}
