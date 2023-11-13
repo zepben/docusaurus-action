@@ -32,27 +32,29 @@ runs:
     - name: Update npmrc
       shell: sh
       run: |
-        pushd docs
+        cd docs
         rm -f .npmrc
         echo "@zepben:registry=${NPM_REPO}" >> .npmrc
         echo "//npm.pkg.github.com/:_authToken=${NPM_TOKEN}" >> .npmrc
         # just in case, add EOL
         echo "\n" >> .npmrc
-        popd
+        cd ..
     
     - name: Build the documentation site
       shell: sh
       run: |
-        pushd docs
+        cd docs
         npm ci
         npm run docusaurus docs:version $VERSION
         npm run build
+        cd ..
       env:
         VERSION: ${{ inputs.VERSION }}
 
     - name: Commit the release branch
       shell: sh
       run: |
+        cd docs
         header="## [$VERSION]"
         changelog=$(sed -n -E "/$VERSION/,/## [[0-9]+\.[0-9]+\.[0-9]+]/ { /## \[/d;p }" $CHANGELOG_FILE)
         to_append="$header\n\n$changelog\n\n---\n"
