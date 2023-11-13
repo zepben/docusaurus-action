@@ -41,9 +41,6 @@ runs:
         echo "\n" >> .npmrc
         cd ..
       env:
-        VERSION: ${{ inputs.VERSION }}
-        CHANGELOG_FILE: ${{ inputs.CHANGELOG_FILE  }}
-        RELEASE_NOTES: ${{ inputs.RELEASE_NOTES }}
         NPM_REPO: ${{ inputs.NPM_REPO }}
         NPM_TOKEN: ${{ inputs.NPM_TOKEN }}
     
