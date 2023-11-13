@@ -58,10 +58,10 @@ runs:
     - name: Commit the release branch
       shell: sh
       run: |
-        cd docs
         header="## [$VERSION]"
         changelog=$(sed -n -E "/$VERSION/,/## [[0-9]+\.[0-9]+\.[0-9]+]/ { /## \[/d;p }" $CHANGELOG_FILE)
         to_append="$header\n\n$changelog\n\n---\n"
+        cd docs
         sed -i "5i \|\[${VERSION}\]\(\#v${VERSION//\./}\)\| \`$(date +'%d %B %Y')\` \|" $RELEASE_NOTES
         export ln=$(cat $RELEASE_NOTES | grep -E -n "#+ \[[0-9]+.[0-9]+.[0-9]+" | head -1 | cut -d':' -f1)
         if [ -z "$ln" ]; then
