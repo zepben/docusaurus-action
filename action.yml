@@ -37,7 +37,7 @@ runs:
 
     - shell: sh
       run: |
-        echo "Update npmrc"
+        # "Update npmrc"
         cd docs
         rm -f .npmrc
         echo "@zepben:registry=${{inputs.NPM_REPO}}" >> .npmrc
@@ -48,7 +48,7 @@ runs:
     
     - shell: sh
       run: |
-        echo "Build the documentation site"
+        # "Build the documentation site"
         cd docs
         npm ci
         npm run docusaurus docs:version ${{ inputs.VERSION }}
@@ -58,7 +58,7 @@ runs:
     - shell: sh
       if: ${{ inputs.TAG-AND-RELEASE == 'yes' }}
       run: |
-        echo "Commit the release branch"
+        # "Commit the release branch"
         header="## [${{ inputs.VERSION }}]"
         changelog=$(sed -n -E "/${{ inputs.VERSION }}/,/## [[0-9]+\.[0-9]+\.[0-9]+]/ { /## \[/d;p }" ${{ inputs.CHANGELOG_FILE }})
         to_append="$header\n\n$changelog\n\n---\n"
