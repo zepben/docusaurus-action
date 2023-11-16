@@ -46,7 +46,13 @@ runs:
         # just in case, add EOL
         echo "\n" >> .npmrc
         cd ..
+
     
+    - uses: actions/cache@v3
+      with:
+        path: docs/node_modules
+        key: node_modules
+
     - shell: sh
       run: |
         # "Build the documentation site"
