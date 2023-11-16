@@ -29,7 +29,7 @@ runs:
 
     - name: Checkout the release branch
       shell: sh
-      if: ${{ inputs.TAG-AND-RELEASE }} == 'yes'
+      if: ${{ inputs.TAG-AND-RELEASE == 'yes' }}
       run: |
         git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
         git fetch --all
@@ -57,7 +57,7 @@ runs:
 
     - name: Commit the release branch
       shell: sh
-      if: ${{ inputs.TAG-AND-RELEASE }} == 'yes'
+      if: ${{ inputs.TAG-AND-RELEASE == 'yes' }}
       run: |
         header="## [${{ inputs.VERSION }}]"
         changelog=$(sed -n -E "/${{ inputs.VERSION }}/,/## [[0-9]+\.[0-9]+\.[0-9]+]/ { /## \[/d;p }" ${{ inputs.CHANGELOG_FILE }})
