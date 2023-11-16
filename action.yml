@@ -27,17 +27,17 @@ runs:
   using: "composite"
   steps: 
 
-    - name: Checkout the release branch
-      shell: sh
+    - shell: sh
       if: ${{ inputs.TAG-AND-RELEASE == 'yes' }}
       run: |
+        echo "Checkout 'release' branch"
         git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
         git fetch --all
         git checkout release
 
-    - name: Update npmrc
-      shell: sh
+    - shell: sh
       run: |
+        echo "Update npmrc"
         cd docs
         rm -f .npmrc
         echo "@zepben:registry=${{inputs.NPM_REPO}}" >> .npmrc
@@ -46,19 +46,19 @@ runs:
         echo "\n" >> .npmrc
         cd ..
     
-    - name: Build the documentation site
-      shell: sh
+    - shell: sh
       run: |
+        echo "Build the documentation site"
         cd docs
         npm ci
         npm run docusaurus docs:version ${{ inputs.VERSION }}
         npm run build
         cd ..
 
-    - name: Commit the release branch
-      shell: sh
+    - shell: sh
       if: ${{ inputs.TAG-AND-RELEASE == 'yes' }}
       run: |
+        echo "Commit the release branch"
         header="## [${{ inputs.VERSION }}]"
         changelog=$(sed -n -E "/${{ inputs.VERSION }}/,/## [[0-9]+\.[0-9]+\.[0-9]+]/ { /## \[/d;p }" ${{ inputs.CHANGELOG_FILE }})
         to_append="$header\n\n$changelog\n\n---\n"
