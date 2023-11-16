@@ -30,7 +30,7 @@ runs:
     - shell: sh
       if: ${{ inputs.TAG-AND-RELEASE == 'yes' }}
       run: |
-        echo "Checkout 'release' branch"
+        # "Checkout 'release' branch"
         git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
         git fetch --all
         git checkout release
