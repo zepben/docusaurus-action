@@ -50,8 +50,13 @@ runs:
     
     - uses: actions/cache@v3
       with:
-        path: docs/node_modules
-        key: node_modules
+        path: ~/.npm
+        key: npm
+
+    - shell: sh
+      run: |
+        # Install dependencies
+        apk add tar
 
     - shell: sh
       run: |
