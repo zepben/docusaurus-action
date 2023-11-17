@@ -38,6 +38,11 @@ runs:
 
     - shell: sh
       run: |
+        # Install dependencies
+        apk add tar
+
+    - shell: sh
+      run: |
         # "Update npmrc"
         cd docs
         rm -f .npmrc
@@ -52,11 +57,6 @@ runs:
       with:
         path: ~/.npm
         key: npm
-
-    - shell: sh
-      run: |
-        # Install dependencies
-        apk add tar
 
     - shell: sh
       run: |
