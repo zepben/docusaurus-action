@@ -80,7 +80,8 @@ runs:
         changelog=$(sed -n -E "/${{ inputs.VERSION }}/,/## [[0-9]+\.[0-9]+\.[0-9]+]/ { /## \[/d;p }" ${{ inputs.CHANGELOG_FILE }})
         to_append="$header\n\n$changelog\n\n---\n"
         cd docs
-        sed -i "5i \|\[${{ inputs.VERSION }}\]\(\#v${{ inputs.VERSION }}//\./\)\| \`$(date +'%d %B %Y')\` \|" ${{ inputs.RELEASE_NOTES }}
+        flat_version=$(echo ${{ inputs.VERSION }} | sed "s/\.//g")
+        sed -i "5i \|\[${{ inputs.VERSION }}\]\(\#v${flat_version}\)\| \`$(date +'%d %B %Y')\` \|" ${{ inputs.RELEASE_NOTES }}
         export ln=$(cat ${{ inputs.RELEASE_NOTES }} | grep -E -n "#+ \[[0-9]+.[0-9]+.[0-9]+" | head -1 | cut -d':' -f1)
         if [ -z "$ln" ]; then
           echo "${changelog}\n\n---\n" >> ${{ inputs.RELEASE_NOTES }}
