@@ -38,11 +38,6 @@ runs:
 
     - shell: sh
       run: |
-        # Install dependencies
-        apk add tar
-
-    - shell: sh
-      run: |
         # "Update npmrc"
         cd docs
         rm -f .npmrc
@@ -52,11 +47,6 @@ runs:
         echo "\n" >> .npmrc
         cd ..
 
-    
-    - uses: actions/cache@v3
-      with:
-        path: ~/.npm
-        key: npm
 
     - shell: sh
       run: |
