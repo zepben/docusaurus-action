@@ -1,8 +1,8 @@
 name: 'Docusaurus Release Action'
 description: 'Build docusaurus project as part of the build process.'
 inputs:
-  TAG-AND-RELEASE:
-    description: 'Whether to git tag and release the docs'
+  TAG:
+    description: 'Whether to version-tag the docs; usually followed by release'
     default: 'yes' 
     required: false
   VERSION:
@@ -29,17 +29,12 @@ runs:
   steps: 
 
     - shell: sh
-      if: ${{ inputs.TAG-AND-RELEASE == 'yes' }}
+      if: ${{ inputs.TAG == 'yes' }}
       run: |
         # "Checkout 'release' branch"
         git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
         git fetch --all
         git checkout release
-
-    - shell: sh
-      run: |
-        # Install dependencies
-        apk add tar
 
     - shell: sh
       run: |
@@ -52,30 +47,31 @@ runs:
         echo "\n" >> .npmrc
         cd ..
 
-    
-    - uses: actions/cache@v3
-      with:
-        path: ~/.npm
-        key: npm
 
     - shell: sh
       run: |
         # "Build the documentation site"
         cd docs
         npm ci
-        npm run docusaurus docs:version ${{ inputs.VERSION }}
         npm run build
         cd ..
 
     - shell: sh
-      if: ${{ inputs.TAG-AND-RELEASE == 'yes' }}
+      if: ${{ inputs.TAG == 'yes' }}
       run: |
-        # "Commit the release branch"
+        # "VERSION TAG the new documentation"
+        npm run docusaurus docs:version ${{ inputs.VERSION }}
+
+    - shell: sh
+      if: ${{ inputs.TAG == 'yes' }}
+      run: |
+        # "Update the release notes and commit the release branch"
         header="## [${{ inputs.VERSION }}]"
         changelog=$(sed -n -E "/${{ inputs.VERSION }}/,/## [[0-9]+\.[0-9]+\.[0-9]+]/ { /## \[/d;p }" ${{ inputs.CHANGELOG_FILE }})
         to_append="$header\n\n$changelog\n\n---\n"
         cd docs
-        sed -i "5i \|\[${{ inputs.VERSION }}\]\(\#v${{ inputs.VERSION }}//\./\)\| \`$(date +'%d %B %Y')\` \|" ${{ inputs.RELEASE_NOTES }}
+        flat_version=$(echo ${{ inputs.VERSION }} | sed "s/\.//g")
+        sed -i "5i \|\[${{ inputs.VERSION }}\]\(\#v${flat_version}\)\| \`$(date +'%d %B %Y')\` \|" ${{ inputs.RELEASE_NOTES }}
         export ln=$(cat ${{ inputs.RELEASE_NOTES }} | grep -E -n "#+ \[[0-9]+.[0-9]+.[0-9]+" | head -1 | cut -d':' -f1)
         if [ -z "$ln" ]; then
           echo "${changelog}\n\n---\n" >> ${{ inputs.RELEASE_NOTES }}
