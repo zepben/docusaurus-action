@@ -54,13 +54,13 @@ runs:
         cd docs
         npm ci
         npm run build
-        cd ..
 
     - shell: sh
       if: ${{ inputs.TAG == 'yes' }}
       run: |
         # "VERSION TAG the new documentation"
         npm run docusaurus docs:version ${{ inputs.VERSION }}
+        cd ..
 
     - shell: sh
       if: ${{ inputs.TAG == 'yes' }}
@@ -85,3 +85,4 @@ runs:
         git config user.name "Github CI"
         git commit -m "Committing doc changes to docusaurus. [skip ci]"
         git push origin release
+        cd ..
