@@ -47,6 +47,13 @@ runs:
         echo "\n" >> .npmrc
         cd ..
 
+    - shell: sh
+      if: ${{ inputs.TAG == 'yes' }}
+      run: |
+        # "VERSION TAG the new documentation"
+        cd docs
+        npm run docusaurus docs:version ${{ inputs.VERSION }}
+        cd ..
 
     - shell: sh
       run: |
@@ -54,14 +61,6 @@ runs:
         cd docs
         npm ci
         npm run build
-        cd ..
-
-    - shell: sh
-      if: ${{ inputs.TAG == 'yes' }}
-      run: |
-        # "VERSION TAG the new documentation"
-        cd docs
-        npm run docusaurus docs:version ${{ inputs.VERSION }}
         cd ..
 
     - shell: sh
