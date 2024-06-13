@@ -45,6 +45,9 @@ runs:
         echo "//npm.pkg.github.com/:_authToken=${{inputs.NPM_TOKEN}}" >> .npmrc
         # just in case, add EOL
         echo "\n" >> .npmrc
+
+        # fetch dependencies for all flows
+        npm ci
         cd ..
 
     - shell: sh
@@ -52,7 +55,6 @@ runs:
       run: |
         # "VERSION TAG the new documentation"
         cd docs
-        npm ci
         npm run docusaurus docs:version ${{ inputs.VERSION }}
         cd ..
 
