@@ -52,6 +52,7 @@ runs:
       run: |
         # "VERSION TAG the new documentation"
         cd docs
+        npm ci
         npm run docusaurus docs:version ${{ inputs.VERSION }}
         cd ..
 
@@ -59,7 +60,6 @@ runs:
       run: |
         # "Build the documentation site"
         cd docs
-        npm ci
         npm run build
         cd ..
 
