@@ -36,6 +36,13 @@ runs:
         git fetch --all
         git checkout release
 
+    - shell: bash
+      run: |
+        # Copy all the templates if on Docusaurus3
+        cd docs
+        /templates/build-docs.sh --skip-build
+        cd ..
+
     - shell: sh
       run: |
         # "Update npmrc"
