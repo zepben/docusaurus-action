@@ -38,7 +38,7 @@ runs:
 
     - shell: bash
       run: |
-        # Copy all the templates if on Docusaurus3
+        # Copy all the templates if on Docusaurus3, but don't build
         cd docs
         /templates/build-docs.sh --skip-build
         cd ..
