@@ -40,7 +40,7 @@ runs:
       run: |
         # Copy all the templates if on Docusaurus3, but don't build
         cd docs
-        /templates/build-docs.sh --skip-build
+        /templates/build.sh --skip-build
         cd ..
 
     - shell: sh
