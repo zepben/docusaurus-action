@@ -15,7 +15,7 @@ inputs:
     required: true
   RELEASE_NOTES:
     description: "Path to the release notes file."
-    default: ./src/pages/release-notes.md
+    default: release-notes.md
     required: true
   NPM_REPO:
     description: "The package repo for npm to use."
@@ -69,18 +69,31 @@ runs:
       if: ${{ inputs.TAG == 'yes' }}
       run: |
         # "Update the release notes
+
         header="## [${{ inputs.VERSION }}]"
         changelog=$(sed -n -E "/${{ inputs.VERSION }}/,/## [[0-9]+\.[0-9]+\.[0-9]+]/ { /## \[/d;p }" ${{ inputs.CHANGELOG_FILE }})
         to_append="$header\n\n$changelog\n\n---\n"
+
         cd docs
-        flat_version=$(echo ${{ inputs.VERSION }} | sed "s/\.//g")
-        sed -i "5i \|\[${{ inputs.VERSION }}\]\(\#v${flat_version}\)\| \`$(date +'%d %B %Y')\` \|" ${{ inputs.RELEASE_NOTES }}
-        export ln=$(cat ${{ inputs.RELEASE_NOTES }} | grep -E -n "#+ \[[0-9]+.[0-9]+.[0-9]+" | head -1 | cut -d':' -f1)
-        if [ -z "$ln" ]; then
-          echo "${changelog}\n\n---\n" >> ${{ inputs.RELEASE_NOTES }}
+        # Figure out the location of the release-notes
+
+        if [ -f ${{ inputs.RELEASE_NOTES }} ]; then
+          RELEASE_NOTES=${{ inputs.RELEASE_NOTES }}
+        elif [ -f src/pages/release-notes.md ]; then
+          RELEASE_NOTES=src/pages/release-notes.md
         else
-          awk -v n=$ln -v s="$to_append" 'NR == n {print s} {print}' ${{ inputs.RELEASE_NOTES }} > release-notes.tmp
-          mv release-notes.tmp ${{ inputs.RELEASE_NOTES }}
+          echo "Can't find release-notes in docs/ nor in docs/src/pages, what's up with that?"
+          exit 1
+        fi
+
+        flat_version=$(echo ${{ inputs.VERSION }} | sed "s/\.//g")
+        sed -i "5i \|\[${{ inputs.VERSION }}\]\(\#v${flat_version}\)\| \`$(date +'%d %B %Y')\` \|" $RELEASE_NOTES
+        export ln=$(cat $RELEASE_NOTES | grep -E -n "#+ \[[0-9]+.[0-9]+.[0-9]+" | head -1 | cut -d':' -f1)
+        if [ -z "$ln" ]; then
+          echo "${changelog}\n\n---\n" >> $RELEASE_NOTES
+        else
+          awk -v n=$ln -v s="$to_append" 'NR == n {print s} {print}' $RELEASE_NOTES > release-notes.tmp
+          mv release-notes.tmp src/pages/release-notes.md
         fi
         cd ..
 
