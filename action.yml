@@ -43,10 +43,33 @@ runs:
         /templates/build.sh --skip-build
         cd ..
 
+    - name: Detect build folder and release-notes
+      shell: sh
+      run: |
+        docs="docs"
+        if [ -d docs/site-config ]; then
+          docs="docs/site-config"
+        fi
+        echo "docs=$docs_dir" >> $GITHUB_ENV
+
+        pushd "${docs}"
+
+        if [ -f "release-notes.md" ]; then
+          echo "release_notes=release-notes.md" >> $GITHUB_ENV
+        elif [ -f ${{ inputs.RELEASE_NOTES }} ]; then
+          echo "release_notes=${{ inputs.RELEASE_NOTES }}" >> $GITHUB_ENV
+        else
+          echo "I couldn't find release notes in ${{ inputs.RELEASE_NOTES }} nor in $(pwd)/release-notes.md"
+          exit 1
+        fi
+
+        popd
+
+
     - shell: sh
       run: |
         # "Update npmrc"
-        cd docs
+        pushd "${docs}"
         rm -f .npmrc
         echo "@zepben:registry=${{inputs.NPM_REPO}}" >> .npmrc
         echo "//npm.pkg.github.com/:_authToken=${{inputs.NPM_TOKEN}}" >> .npmrc
@@ -55,13 +78,13 @@ runs:
 
         # fetch dependencies for all flows
         npm ci
-        cd ..
+        popd 
 
     - shell: sh
       if: ${{ inputs.TAG == 'yes' }}
       run: |
         # "VERSION TAG the new documentation"
-        cd docs
+        pushd "${docs}"
         npm run docusaurus docs:version ${{ inputs.VERSION }}
         cd ..
 
@@ -72,34 +95,36 @@ runs:
         header="## [${{ inputs.VERSION }}]"
         changelog=$(sed -n -E "/${{ inputs.VERSION }}/,/## [[0-9]+\.[0-9]+\.[0-9]+]/ { /## \[/d;p }" ${{ inputs.CHANGELOG_FILE }})
         to_append="$header\n\n$changelog\n\n---\n"
-        cd docs
+
+        pushd "${docs}"
+
         flat_version=$(echo ${{ inputs.VERSION }} | sed "s/\.//g")
-        sed -i "5i \|\[${{ inputs.VERSION }}\]\(\#${flat_version}\)\| \`$(date +'%d %B %Y')\` \|" ${{ inputs.RELEASE_NOTES }}
-        export ln=$(cat ${{ inputs.RELEASE_NOTES }} | grep -E -n "#+ \[[0-9]+.[0-9]+.[0-9]+" | head -1 | cut -d':' -f1)
+        sed -i "5i \|\[${{ inputs.VERSION }}\]\(\#${flat_version}\)\| \`$(date +'%d %B %Y')\` \|" "${release_notes}"
+        export ln=$(cat "${release_notes}" | grep -E -n "#+ \[[0-9]+.[0-9]+.[0-9]+" | head -1 | cut -d':' -f1)
         if [ -z "$ln" ]; then
-          echo "${changelog}\n\n---\n" >> ${{ inputs.RELEASE_NOTES }}
+          echo "${changelog}\n\n---\n" >> "${release_notes}"
         else
-          awk -v n=$ln -v s="$to_append" 'NR == n {print s} {print}' ${{ inputs.RELEASE_NOTES }} > release-notes.tmp
-          mv release-notes.tmp ${{ inputs.RELEASE_NOTES }}
+          awk -v n=$ln -v s="$to_append" 'NR == n {print s} {print}' "${release_notes}" > release-notes.tmp
+          mv release-notes.tmp ${release_notes}
         fi
-        cd ..
+        popd
 
     - shell: sh
       run: |
         # "Build the documentation site"
-        cd docs
+        pushd "${docs}"
         npm run build
-        cd ..
+        popd
 
     - shell: sh
       if: ${{ inputs.TAG == 'yes' }}
       run: |
         # "Commit the release branch"
-        cd docs
+        pushd "${docs}"
         git restore .npmrc
         git add .
         git config user.email "ci.github@zepben.com"
         git config user.name "Github CI"
         git commit -m "Committing doc changes to docusaurus. [skip ci]"
         git push origin release
-        cd ..
+        popd
