@@ -38,6 +38,7 @@ runs:
     - shell: bash
       env:
         REPO_NAME: ${{ github.repository }}
+        REPO_DOCS_TITLE: ${{ vars.REPO_DOCS_TITLE }}
       run: |
         # figure out the repo name
         # Copy all the templates if on Docusaurus3, but don't build
