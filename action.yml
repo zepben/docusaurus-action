@@ -45,7 +45,6 @@ runs:
     - name: Detect build folder and release-notes
       shell: bash
       run: |
-        ls -lRa docs
         docs="docs"
         if [ -d docs/site-config ]; then
           docs="docs/site-config"
@@ -66,10 +65,12 @@ runs:
         popd
 
 
-    - shell: bash
+    - name: Fetch dependencies
+      shell: bash
       run: |
         # "Update npmrc"
         pushd "${docs}"
+        pwd
         rm -f .npmrc
         echo "@zepben:registry=${{inputs.NPM_REPO}}" >> .npmrc
         echo "//npm.pkg.github.com/:_authToken=${{inputs.NPM_TOKEN}}" >> .npmrc
