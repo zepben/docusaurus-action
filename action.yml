@@ -36,7 +36,10 @@ runs:
         git checkout release
 
     - shell: bash
+      env:
+        REPO_NAME=${{ github.repository }}
       run: |
+        # figure out the repo name
         # Copy all the templates if on Docusaurus3, but don't build
         cd docs
         /templates/build.sh --skip-build
