@@ -129,10 +129,25 @@ runs:
       run: |
         # "Commit the release branch"
         pushd "${docs}"
+
+        # if on Docusaurus3, copy over the artefacts
+        if [ -d site-config ]; then
+          cp -rL site-config/versioned_docs/* archive/versioned_docs/
+          cp -rL site-config/versioned_sidebars/* archive/versioned_sidebars/
+          cp -rf site-config/versions.json archive/
+        fi
+        
         git restore .npmrc
         git add .
         git config user.email "ci.github@zepben.com"
         git config user.name "Github CI"
         git commit -m "Committing doc changes to docusaurus. [skip ci]"
         git push origin release
+
+        # Finally, after git push, we can copy over the build directory, so that zipper can do its thing
+        if [ -d site-config ]; then
+          mv site-config/build .
+        fi
+
+        # Get back home
         popd
