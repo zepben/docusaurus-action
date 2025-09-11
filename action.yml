@@ -23,7 +23,7 @@ inputs:
   NPM_TOKEN:
     description: "Token for authenticating with NPM_REPO."
     required: true
-  REPO_DOCS_TITLE:
+  DOCS_TITLE:
     description: "The title for docusaurus configuration"
     required: true
 
@@ -41,7 +41,7 @@ runs:
     - shell: bash
       env:
         REPO_NAME: ${{ github.repository }}
-        REPO_DOCS_TITLE: ${{ inputs.REPO_DOCS_TITLE }}
+        DOCS_TITLE: ${{ inputs.DOCS_TITLE }}
       run: |
         # figure out the repo name
         # Copy all the templates if on Docusaurus3, but don't build
