@@ -132,9 +132,9 @@ runs:
 
         # if on Docusaurus3, copy over the artefacts
         if [ -d site-config ]; then
-          cp -rL site-config/versioned_docs/* archive/versioned_docs/
-          cp -rL site-config/versioned_sidebars/* archive/versioned_sidebars/
-          cp -rf site-config/versions.json archive/
+          \cp -frL site-config/versioned_docs/* archive/versioned_docs/
+          \cp -frL site-config/versioned_sidebars/* archive/versioned_sidebars/
+          \cp -rf site-config/versions.json archive/
         fi
         
         git restore .npmrc
