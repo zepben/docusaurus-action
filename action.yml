@@ -128,7 +128,7 @@ runs:
       if: ${{ inputs.TAG == 'yes' }}
       run: |
         # "Commit the release branch"
-        pushd "${docs}"
+        cd docs
 
         # if on Docusaurus3, copy over the artefacts
         if [ -d site-config ]; then
@@ -138,7 +138,7 @@ runs:
         fi
         
         git restore .npmrc
-        git add archive
+        git add .
         git config user.email "ci.github@zepben.com"
         git config user.name "Github CI"
         git commit -m "Committing doc changes to docusaurus. [skip ci]"
@@ -150,4 +150,4 @@ runs:
         fi
 
         # Get back home
-        popd
+        cd
