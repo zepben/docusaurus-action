@@ -123,9 +123,9 @@ runs:
         pushd "${docs}"
         npm run build
 
-        # Finally, we can copy over the build directory, so that zipper can do its thing
-        if [ -d site-config ]; then
-          mv site-config/build .
+        # Finally, we can copy out the build directory from site-config if in docusaurus3, so that zipper can do its thing
+        if [ $(basename $(pwd)) == "site-config" ]; then
+          mv build ..
         fi
 
         popd
