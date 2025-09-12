@@ -136,14 +136,13 @@ runs:
         # "Commit the release branch"
         cd docs
 
-        # if on Docusaurus3, copy over the artefacts
         if [ -d site-config ]; then
+          # if on Docusaurus3, copy over the artefacts
           \cp -frL site-config/versioned_docs/* archive/versioned_docs/
           \cp -frL site-config/versioned_sidebars/* archive/versioned_sidebars/
           \cp -rf site-config/versions.json archive/
-        fi
-        
-        if [ -d site-config ]; then
+
+          # restore .npmrc
           git restore site-config/.npmrc
         else
           git restore .npmrc
