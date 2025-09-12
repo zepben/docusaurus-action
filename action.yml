@@ -122,6 +122,12 @@ runs:
         # "Build the documentation site"
         pushd "${docs}"
         npm run build
+
+        # Finally, we can copy over the build directory, so that zipper can do its thing
+        if [ -d site-config ]; then
+          mv site-config/build .
+        fi
+
         popd
 
     - shell: bash
@@ -148,11 +154,6 @@ runs:
         git config user.name "Github CI"
         git commit -m "Committing doc changes to docusaurus. [skip ci]"
         git push origin release
-
-        # Finally, after git push, we can copy over the build directory, so that zipper can do its thing
-        if [ -d site-config ]; then
-          mv site-config/build .
-        fi
 
         # Get back home
         cd
