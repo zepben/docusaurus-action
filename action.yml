@@ -81,14 +81,13 @@ runs:
         rm -f .npmrc
         echo "@zepben:registry=${{inputs.NPM_REPO}}" >> .npmrc
         echo "//npm.pkg.github.com/:_authToken=${{inputs.NPM_TOKEN}}" >> .npmrc
-        # just in case, add EOL
-        echo "\n" >> .npmrc
 
         # fetch dependencies for all flows
         npm ci
         popd 
 
-    - shell: bash
+    - name: Create a version
+      shell: bash
       if: ${{ inputs.TAG == 'yes' }}
       run: |
         # "VERSION TAG the new documentation"
@@ -96,7 +95,8 @@ runs:
         npm run docusaurus docs:version ${{ inputs.VERSION }}
         cd ..
 
-    - shell: bash
+    - name: Update release notes
+      shell: bash
       if: ${{ inputs.TAG == 'yes' }}
       run: |
         # "Update the release notes
@@ -117,7 +117,8 @@ runs:
         fi
         popd
 
-    - shell: bash
+    - name: Build the docs
+      shell: bash
       run: |
         # "Build the documentation site"
         pushd "${docs}"
@@ -130,7 +131,8 @@ runs:
 
         popd
 
-    - shell: bash
+    - name: Commit the results
+      shell: bash
       if: ${{ inputs.TAG == 'yes' }}
       run: |
         # "Commit the release branch"
