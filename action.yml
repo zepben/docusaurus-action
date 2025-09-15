@@ -43,7 +43,6 @@ runs:
         REPO_NAME: ${{ github.repository }}
         DOCS_TITLE: ${{ inputs.DOCS_TITLE }}
       run: |
-        # figure out the repo name
         # Copy all the templates if on Docusaurus3, but don't build
         cd docs
         /templates/build.sh --skip-build
@@ -53,15 +52,17 @@ runs:
       shell: bash
       run: |
         docs="$(pwd)/docs"
+        site="$docs"
         if [ -d ${docs}/site-config ]; then
-          docs="${docs}/site-config"
+          site="${docs}/site-config"
         fi
         echo "docs=$docs" >> $GITHUB_ENV
+        echo "site=$site" >> $GITHUB_ENV
 
-        pushd "${docs}"
+        pushd "${site}"
 
         if [ -f "release-notes.md" ]; then
-          echo "release_notes=release-notes.md" >> $GITHUB_ENV
+          echo "release_notes=$(pwd)/release-notes.md" >> $GITHUB_ENV
         elif [ -f ${{ inputs.RELEASE_NOTES }} ]; then
           echo "release_notes=${{ inputs.RELEASE_NOTES }}" >> $GITHUB_ENV
         else
@@ -76,8 +77,7 @@ runs:
       shell: bash
       run: |
         # "Update npmrc"
-        pushd "${docs}"
-        pwd
+        pushd "${site}"
         rm -f .npmrc
         echo "@zepben:registry=${{inputs.NPM_REPO}}" >> .npmrc
         echo "//npm.pkg.github.com/:_authToken=${{inputs.NPM_TOKEN}}" >> .npmrc
@@ -90,7 +90,7 @@ runs:
       shell: bash
       if: ${{ inputs.TAG == 'yes' }}
       run: |
-        # "VERSION TAG the new documentation"
+        # "VERSION TAG the new documentation, do it in docs/ folder "
         pushd "${docs}"
         npm run docusaurus docs:version ${{ inputs.VERSION }}
         cd ..
@@ -99,12 +99,12 @@ runs:
       shell: bash
       if: ${{ inputs.TAG == 'yes' }}
       run: |
-        # "Update the release notes
+        # Update the release notes
         header="## [${{ inputs.VERSION }}]"
         changelog=$(sed -n -E "/${{ inputs.VERSION }}/,/## [[0-9]+\.[0-9]+\.[0-9]+]/ { /## \[/d;p }" ${{ inputs.CHANGELOG_FILE }})
         to_append="$header\n\n$changelog\n\n---\n"
 
-        pushd "${docs}"
+        pushd "${site}"
 
         flat_version=$(echo ${{ inputs.VERSION }} | sed "s/\.//g")
         sed -i "5i \|\[${{ inputs.VERSION }}\]\(\#${flat_version}\)\| \`$(date +'%d %B %Y')\` \|" "${release_notes}"
@@ -121,7 +121,7 @@ runs:
       shell: bash
       run: |
         # "Build the documentation site"
-        pushd "${docs}"
+        pushd "${site}"
         npm run build
 
         # Finally, we can copy out the build directory from site-config if in docusaurus3, so that zipper can do its thing
