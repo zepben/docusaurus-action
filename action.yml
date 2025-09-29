@@ -55,6 +55,9 @@ runs:
         site="$docs"
         if [ -d ${docs}/site-config ]; then
           site="${docs}/site-config"
+
+          # on Docusaurus3 we don't need to fetch deps 
+          echo "skip_deps=yes" >> $GITHUB_ENV
         fi
         echo "docs=$docs" >> $GITHUB_ENV
         echo "site=$site" >> $GITHUB_ENV
@@ -82,8 +85,10 @@ runs:
         echo "@zepben:registry=${{inputs.NPM_REPO}}" >> .npmrc
         echo "//npm.pkg.github.com/:_authToken=${{inputs.NPM_TOKEN}}" >> .npmrc
 
-        # fetch dependencies for all flows
-        npm ci
+        # fetch dependencies for Docusaurus2 
+        if [ "${skip_deps}" != "yes" ]; then 
+          npm ci
+        fi
         popd 
 
     - name: Create a version
