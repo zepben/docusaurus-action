@@ -95,8 +95,8 @@ runs:
       shell: bash
       if: ${{ inputs.TAG == 'yes' }}
       run: |
-        # "VERSION TAG the new documentation, do it in docs/ folder "
-        pushd "${docs}"
+        # VERSION TAG the new documentation
+        pushd "${site}"
         npm run docusaurus docs:version ${{ inputs.VERSION }}
         cd ..
 
@@ -122,18 +122,11 @@ runs:
         fi
         popd
 
-    - name: Build the docs
+    - name: Build the documentation site
       shell: bash
       run: |
-        # "Build the documentation site"
         pushd "${site}"
         npm run build
-
-        # Finally, we can copy out the build directory from site-config if in docusaurus3, so that zipper can do its thing
-        if [ $(basename $(pwd)) == "site-config" ]; then
-          mv build ..
-        fi
-
         popd
 
     - name: Commit the results
@@ -148,6 +141,9 @@ runs:
           \cp -frL site-config/versioned_docs/* archive/versioned_docs/
           \cp -frL site-config/versioned_sidebars/* archive/versioned_sidebars/
           \cp -rf site-config/versions.json archive/
+
+          # Finally, we can copy out the build directory from site-config if in docusaurus3, so that zipper can do its thing
+          mv site-config/build .
 
           # restore .npmrc
           git restore site-config/.npmrc
