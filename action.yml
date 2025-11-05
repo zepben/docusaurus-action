@@ -26,6 +26,9 @@ inputs:
   DOCS_TITLE:
     description: "The title for docusaurus configuration"
     required: true
+  REPO_NAME:
+    description: "The repo for docusaurus slug"
+    required: false
 
 runs:
   using: "composite"
@@ -40,7 +43,7 @@ runs:
 
     - shell: bash
       env:
-        REPO_NAME: ${{ github.repository }}
+        REPO_NAME: ${{ inputs.REPO_NAME != "" && inputs.REPO_NAME || github.repository }}
         DOCS_TITLE: ${{ inputs.DOCS_TITLE }}
       run: |
         # Copy all the templates if on Docusaurus3, but don't build
