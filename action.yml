@@ -3,7 +3,8 @@ description: 'Build docusaurus project as part of the build process.'
 inputs:
   TAG:
     description: 'Whether to version-tag the docs; usually followed by release'
-    default: 'yes' 
+    type: boolean
+    default: false
     required: false
   VERSION:
     description: "The project version."
@@ -34,7 +35,7 @@ runs:
   using: "composite"
   steps: 
     - shell: sh
-      if: ${{ inputs.TAG == 'yes' }}
+      if: ${{ inputs.TAG }}
       run: |
         # "Checkout 'release' branch"
         git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
@@ -97,7 +98,7 @@ runs:
 
     - name: Create a version
       shell: bash
-      if: ${{ inputs.TAG == 'yes' }}
+      if: ${{ inputs.TAG }}
       run: |
         # VERSION TAG the new documentation
         pushd "${site}"
@@ -106,7 +107,7 @@ runs:
 
     - name: Update release notes
       shell: bash
-      if: ${{ inputs.TAG == 'yes' }}
+      if: ${{ inputs.TAG }}
       run: |
         # Update the release notes
         header="## [${{ inputs.VERSION }}]"
@@ -141,7 +142,7 @@ runs:
 
     - name: Commit the results
       shell: bash
-      if: ${{ inputs.TAG == 'yes' }}
+      if: ${{ inputs.TAG }}
       run: |
         # "Commit the release branch"
         cd docs
