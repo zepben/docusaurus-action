@@ -26,6 +26,12 @@ inputs:
   DOCS_TITLE:
     description: "The title for docusaurus configuration"
     required: true
+  PRODUCT:
+    description: "The product to build for, evolve or ednar"
+    required: true
+  REPO_NAME:
+    description: "The repo for docusaurus slug"
+    required: false
 
 runs:
   using: "composite"
@@ -42,6 +48,7 @@ runs:
       env:
         REPO_NAME: ${{ github.repository }}
         DOCS_TITLE: ${{ inputs.DOCS_TITLE }}
+        PRODUCT: ${{ inputs.PRODUCT }}
       run: |
         # Copy all the templates if on Docusaurus3, but don't build
         cd docs
