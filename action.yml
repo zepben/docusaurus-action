@@ -162,7 +162,7 @@ runs:
         git add .
         git config user.email "ci.github@zepben.com"
         git config user.name "Github CI"
-        git commit -m "Committing doc changes to docusaurus. [skip ci]"
+        git commit -m "Committing doc changes to docusaurus (tagged version ${{ inputs.VERSION }}). [skip ci]"
         git push origin release
 
         # Get back home
