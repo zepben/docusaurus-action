@@ -1,15 +1,11 @@
 name: 'Docusaurus Release Action'
 description: 'Build docusaurus project as part of the build process.'
 inputs:
-  TAG:
-    description: 'Whether to version-tag the docs; usually followed by release'
-    type: boolean
-    default: false
-    required: false
   VERSION:
     description: "The project version."
     required: false
-    default: 0.0.1-test-ci 
+    type: string
+    default: 0
   CHANGELOG_FILE:
     description: "File containing the current changelog."
     default: changelog.md
@@ -35,7 +31,7 @@ runs:
   using: "composite"
   steps: 
     - shell: sh
-      if: ${{ inputs.TAG }}
+      if: ${{ inputs.VERSION != "0" }}
       run: |
         # "Checkout 'release' branch"
         git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
@@ -98,16 +94,16 @@ runs:
 
     - name: Create a version
       shell: bash
-      if: ${{ inputs.TAG }}
+      if: ${{ inputs.VERSION != "0" }}
       run: |
-        # VERSION TAG the new documentation
+        # VERSION the new documentation
         pushd "${site}"
         npm run docusaurus docs:version ${{ inputs.VERSION }}
         cd ..
 
     - name: Update release notes
       shell: bash
-      if: ${{ inputs.TAG }}
+      if: ${{ inputs.VERSION != "0" }}
       run: |
         # Update the release notes
         header="## [${{ inputs.VERSION }}]"
@@ -142,7 +138,7 @@ runs:
 
     - name: Commit the results
       shell: bash
-      if: ${{ inputs.TAG }}
+      if: ${{ inputs.VERSION != "0" }}
       run: |
         # "Commit the release branch"
         cd docs
@@ -162,7 +158,7 @@ runs:
         git add .
         git config user.email "ci.github@zepben.com"
         git config user.name "Github CI"
-        git commit -m "Committing doc changes to docusaurus (tagged version ${{ inputs.VERSION }}). [skip ci]"
+        git commit -m "Tagging documentation with version ${{ inputs.VERSION }} [skip ci]"
         git push origin release
 
         # Get back home
