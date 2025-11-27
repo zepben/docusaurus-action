@@ -29,9 +29,6 @@ inputs:
   PRODUCT:
     description: "The product to build for, evolve or ednar"
     required: true
-  REPO_NAME:
-    description: "The repo for docusaurus slug"
-    required: false
 
 runs:
   using: "composite"
