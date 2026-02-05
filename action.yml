@@ -99,7 +99,13 @@ runs:
         # VERSION the new documentation
         pushd "${site}"
         npm run docusaurus docs:version ${{ inputs.VERSION }}
-        cd ..
+
+        # VERSION the spec if it exists
+        if [ -d static/spec/next ]; then
+          cp -r static/spec/next static/spec/${{ inputs.VERSION }}
+        fi
+
+        popd
 
     - name: Update release notes
       shell: bash
@@ -147,6 +153,9 @@ runs:
           # if on Docusaurus3, copy over the artefacts
           \cp -frL site-config/versioned_docs/* archive/versioned_docs/
           \cp -frL site-config/versioned_sidebars/* archive/versioned_sidebars/
+          if [ -d static/spec/${{ inputs.VERSION }} ]; then
+            \cp -frL site-config/static/spec/${{ inputs.VERSION }} archive/versioned_spec/
+          fi
           \cp -rf site-config/versions.json archive/
 
           # restore .npmrc
