@@ -99,7 +99,13 @@ runs:
         # VERSION the new documentation
         pushd "${site}"
         npm run docusaurus docs:version ${{ inputs.VERSION }}
-        cd ..
+
+        # VERSION the spec if it exists
+        if [ -d "${docs}/spec" ]; then
+          cp -r "${docs}/spec" "${docs}/archive/versioned_spec/${{ inputs.VERSION }}"
+        fi
+
+        popd
 
     - name: Update release notes
       shell: bash
