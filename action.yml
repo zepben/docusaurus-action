@@ -103,6 +103,9 @@ runs:
         # VERSION the spec if it exists
         if [ -d "${docs}/spec" ]; then
           cp -r "${docs}/spec" "${docs}/archive/versioned_spec/${{ inputs.VERSION }}"
+          if [ -d "${docs}/site-config/static/spec" ]; then
+            cp -r "${docs}/spec" "${docs}/site-config/static/spec/${{ inputs.VERSION }}"
+          fi
         fi
 
         popd
