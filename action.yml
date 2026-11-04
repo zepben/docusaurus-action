@@ -100,10 +100,10 @@ runs:
 
         pushd "${site}"
         
-        # The following creates versioned docs/sidebars folders
+        # The following command creates versioned docs/sidebars folders
         npm run docusaurus docs:version ${{ inputs.VERSION }}
 
-        # The following creates a versioned spec folder
+        # The following copy creates a versioned spec folder
         if [[ -d "${docs}/spec" && -d "${site}/static/spec" ]]; then
           cp -r "${docs}/spec" "${site}/static/spec/${{ inputs.VERSION }}"
         fi
